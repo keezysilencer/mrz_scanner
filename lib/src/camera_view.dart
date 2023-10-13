@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+
 import 'camera_overlay.dart';
 
 class MRZCameraView extends StatefulWidget {
@@ -149,23 +150,22 @@ class _MRZCameraViewState extends State<MRZCameraView> {
 
     final planeData = image.planes.map(
       (Plane plane) {
-        return InputImagePlaneMetadata(
+        return InputImageMetadata(
           bytesPerRow: plane.bytesPerRow,
-          height: plane.height,
-          width: plane.width,
+          size: Size(plane.width!.toDouble(), plane.height!.toDouble()),
+          rotation: imageRotation,
+          format: inputImageFormat,
         );
       },
     ).toList();
-
-    final inputImageData = InputImageData(
-      size: imageSize,
-      imageRotation: imageRotation,
-      inputImageFormat: inputImageFormat,
-      planeData: planeData,
-    );
-
-    final inputImage =
-        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
+    final plane = image.planes.first;
+    final inputImage = InputImage.fromBytes(
+        bytes: bytes,
+        metadata: InputImageMetadata(
+            size: imageSize,
+            rotation: imageRotation,
+            format: inputImageFormat,
+            bytesPerRow: plane.bytesPerRow));
 
     widget.onImage(inputImage);
   }
